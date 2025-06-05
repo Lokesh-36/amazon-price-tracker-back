@@ -3,8 +3,35 @@ const Product = require('../models/Product');
 const scrapeAmazon = require('./scraper');
 const transporter = require('../config/mailer');
 const puppeteer = require('puppeteer');
+const fs = require('fs');
+const path = require('path');
 
 console.log("📆 Scheduler script started");
+
+// Function to find Chrome executable dynamically
+function findChromeExecutable() {
+  const basePath = '/opt/render/.cache/puppeteer/chrome';
+  
+  try {
+    if (fs.existsSync(basePath)) {
+      const versions = fs.readdirSync(basePath);
+      if (versions.length > 0) {
+        // Get the latest version (they're usually sorted)
+        const latestVersion = versions.sort().reverse()[0];
+        const chromePath = path.join(basePath, latestVersion, 'chrome-linux64', 'chrome');
+        
+        if (fs.existsSync(chromePath)) {
+          console.log(`🔍 Found Chrome at: ${chromePath}`);
+          return chromePath;
+        }
+      }
+    }
+  } catch (err) {
+    console.log('⚠️ Could not find Chrome executable, falling back to default');
+  }
+  
+  return null;
+}
 
 // This runs every 6 hours — keep it
 cron.schedule('0 */6 * * *', async () => {
@@ -30,8 +57,11 @@ async function runJob() {
 
     console.log(`🔍 Checking ${products.length} products...`);
 
+    // Find Chrome executable dynamically
+    const chromeExecutable = findChromeExecutable();
+    
     // Launch browser with Render-optimized settings
-    browser = await puppeteer.launch({
+    const launchOptions = {
       headless: 'new',
       args: [
         '--no-sandbox',
@@ -45,10 +75,15 @@ async function runJob() {
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding'
-      ],
-      // Let Puppeteer handle the executable path automatically
-      // This works better on Render than specifying executablePath
-    });
+      ]
+    };
+    
+    // Add executable path if found
+    if (chromeExecutable) {
+      launchOptions.executablePath = chromeExecutable;
+    }
+    
+    browser = await puppeteer.launch(launchOptions);
 
     console.log("🌐 Browser launched successfully");
 
