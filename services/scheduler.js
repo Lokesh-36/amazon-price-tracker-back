@@ -27,8 +27,9 @@ async function runJob() {
     }
 
     const browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    headless: true,
+    executablePath: puppeteer.executablePath(), // ← Add this line
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
 
     for (let product of products) {
