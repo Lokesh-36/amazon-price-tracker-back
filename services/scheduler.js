@@ -28,9 +28,10 @@ async function runJob() {
 
     const browser = await puppeteer.launch({
   headless: 'new',
-  executablePath: '/opt/render/.cache/puppeteer/chrome/linux-137.0.7151.55/chrome-linux64/chrome',
+  executablePath: puppeteer.executablePath(),  // ✅ Automatically correct path
   args: ['--no-sandbox', '--disable-setuid-sandbox']
 });
+
 
 
 
