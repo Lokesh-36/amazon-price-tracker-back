@@ -12,8 +12,9 @@ const app = express();
 const corsOptions = {
   origin: [
     'http://localhost:3000', // Local development
-    'https://your-vercel-frontend-url.vercel.app', // Replace with your actual Vercel URL
-    // Add more frontend URLs if needed
+    'https://amazon-price-tracker-front.vercel.app', // Main Vercel domain
+    'https://amazon-price-tracker-front-lokesh-36s-projects.vercel.app', // Project-specific domain
+    'https://amazon-price-tracker-back-1.onrender.com', // Your backend URL (for internal calls)
   ],
   credentials: true,
   optionsSuccessStatus: 200
